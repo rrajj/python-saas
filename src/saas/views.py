@@ -1,7 +1,7 @@
 import pathlib
 from django.http import HttpResponse
 from django.shortcuts import render
-
+from visits.models import PageVisit
 curr_dir = pathlib.Path(__file__).resolve().parent
 
 def home_page_view_using_template(request, *args, **kwargs):
@@ -10,11 +10,19 @@ def home_page_view_using_template(request, *args, **kwargs):
     `mkdir templates`
     added the path in `settings.py` so django knows where to find the file
     """
+    qs = PageVisit.objects.all()  # query_set
+    page_qs = PageVisit.objects.filter(path=request.path)
     my_title = "My Page"
     my_context = {
-        "page_title": my_title
+        "page_title": my_title,
+        # "query_set": query_set,
+        "page_visit_count": page_qs.count(),
+        "total_visit_count": qs.count(),
+        "percent": (page_qs.count() * 100.0) / qs.count(),
     }
     html_template = "home.html"     #   file moved to templates
+    # PageVisit.objects.create()
+    PageVisit.objects.create(path=request.path)
     return render(request, html_template, my_context)
 
 def old_home_page_view(request, *args, **kwargs):
